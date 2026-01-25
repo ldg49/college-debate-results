@@ -52,7 +52,17 @@ def run_query(query, params=None):
 
 def display_table(df):
     """Display a DataFrame as a table without the index column."""
-    st.markdown(df.to_html(index=False), unsafe_allow_html=True)
+    html = df.to_html(index=False)
+    # Add CSS to left-align headers
+    styled_html = f"""
+    <style>
+        table th {{
+            text-align: left !important;
+        }}
+    </style>
+    {html}
+    """
+    st.markdown(styled_html, unsafe_allow_html=True)
 
 
 @st.cache_data(ttl=300)
