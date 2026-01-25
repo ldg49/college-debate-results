@@ -52,17 +52,7 @@ def run_query(query, params=None):
 
 def display_table(df):
     """Display a DataFrame as a table without the index column."""
-    html = df.to_html(index=False)
-    # Add CSS to left-align headers
-    styled_html = f"""
-    <style>
-        table th {{
-            text-align: left !important;
-        }}
-    </style>
-    {html}
-    """
-    st.markdown(styled_html, unsafe_allow_html=True)
+    st.markdown(df.to_html(index=False), unsafe_allow_html=True)
 
 
 @st.cache_data(ttl=300)
@@ -72,6 +62,15 @@ def cached_query(query, params=None):
 
 
 st.title("College Policy Debate Database")
+
+# Custom CSS for table styling
+st.markdown("""
+<style>
+    table th {
+        text-align: left !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Clear any cached data to ensure fresh queries
 st.cache_data.clear()
