@@ -322,7 +322,7 @@ elif page == "Debater Lookup":
             display_df[col] = display_df[col].fillna('-')
 
         st.markdown(f"**Showing {len(display_df)} rounds**")
-        st.dataframe(display_df, use_container_width=True, hide_index=True, height=600)
+        st.table(display_df)
 
 
 # ============== SEARCH TEAMS ==============
@@ -361,7 +361,7 @@ elif page == "Search Teams":
 
         if len(results) > 0:
             st.success(f"Found {len(results)} result(s)")
-            st.dataframe(results, use_container_width=True, hide_index=True)
+            st.table(results)
         else:
             st.warning("No teams found matching that search.")
 
@@ -431,7 +431,7 @@ elif page == "Leaderboards":
             ORDER BY elim_wins DESC LIMIT 50
         """)
 
-    st.dataframe(results, use_container_width=True, hide_index=True)
+    st.table(results)
 
 
 # ============== TOURNAMENT LOOKUP ==============
@@ -580,22 +580,7 @@ elif page == "Tournament Lookup":
                             """, (team_id, team_id, team_id, team_id, team_id, team_id, tournament_id))
 
                             if len(team_rounds) > 0:
-                                # Auto-size height based on rows
-                                row_height = 35
-                                table_height = (len(team_rounds) + 1) * row_height + 10
-                                st.dataframe(
-                                    team_rounds,
-                                    hide_index=True,
-                                    use_container_width=True,
-                                    height=table_height,
-                                    column_config={
-                                        "Rd": st.column_config.TextColumn(width="small"),
-                                        "Side": st.column_config.TextColumn(width="small"),
-                                        "Opponent": st.column_config.TextColumn(width="medium"),
-                                        "Judge": st.column_config.TextColumn(width="large"),
-                                        "Result": st.column_config.TextColumn(width="small")
-                                    }
-                                )
+                                st.table(team_rounds)
 
                         st.markdown("---")
 
@@ -661,21 +646,7 @@ elif page == "Tournament Lookup":
                 """, (tournament_id,))
 
                 if len(elim_results) > 0:
-                    left_col, _ = st.columns([4, 1])
-                    with left_col:
-                        st.dataframe(
-                            elim_results,
-                            use_container_width=True,
-                            hide_index=True,
-                            height=500,
-                            column_config={
-                                "Rd": st.column_config.TextColumn(width=80),
-                                "Aff": st.column_config.TextColumn(width=120),
-                                "Neg": st.column_config.TextColumn(width=120),
-                                "Judges": st.column_config.TextColumn(width=200),
-                                "Decision": st.column_config.TextColumn(width=80)
-                            }
-                        )
+                    st.table(elim_results)
                 else:
                     st.info("No elim results available.")
 
@@ -727,7 +698,7 @@ elif page == "Tournament Lookup":
                     """, (tournament_id, selected_round))
 
                     if len(round_results) > 0:
-                        st.dataframe(round_results, use_container_width=True, hide_index=True)
+                        st.table(round_results)
                     else:
                         st.info("No results for this round.")
                 else:
@@ -780,7 +751,7 @@ elif page == "Tournament Lookup":
                         wins = len(team_rounds[team_rounds['Result'] == 'W'])
                         losses = len(team_rounds[team_rounds['Result'] == 'L'])
                         st.markdown(f"**Record: {wins}-{losses}**")
-                        st.dataframe(team_rounds, use_container_width=True, hide_index=True)
+                        st.table(team_rounds)
                     else:
                         st.info("No results for this team.")
                 else:
