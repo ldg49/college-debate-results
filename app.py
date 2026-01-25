@@ -78,7 +78,7 @@ st.cache_data.clear()
 # Sidebar navigation
 page = st.sidebar.radio(
     "Navigate",
-    ["Home", "Debater Lookup", "Search Teams", "Leaderboards", "Tournament Lookup"]
+    ["Home", "Debater Lookup", "Search Teams", "Tournament Lookup"]
 )
 
 # ============== HOME PAGE ==============
@@ -378,74 +378,6 @@ elif page == "Search Teams":
             display_table(results)
         else:
             st.warning("No teams found matching that search.")
-
-
-# ============== LEADERBOARDS ==============
-elif page == "Leaderboards":
-    st.header("Leaderboards")
-
-    leaderboard_type = st.selectbox(
-        "Select Leaderboard",
-        ["Most Career Wins", "Highest Win Percentage (50+ wins)",
-         "Highest Win Percentage (100+ wins)", "Best Average Speaker Points (50+ rounds)",
-         "Most Tournaments Attended", "Most Elim Wins"]
-    )
-
-    if leaderboard_type == "Most Career Wins":
-        results = run_query("""
-            SELECT debater_code as "Code", first_name as "First", last_name as "Last",
-                   total_wins as "Wins", total_losses as "Losses", win_percentage as "Win %",
-                   tournaments_attended as "Tourneys"
-            FROM debater_career_stats WHERE total_wins > 0
-            ORDER BY total_wins DESC LIMIT 50
-        """)
-
-    elif leaderboard_type == "Highest Win Percentage (50+ wins)":
-        results = run_query("""
-            SELECT debater_code as "Code", first_name as "First", last_name as "Last",
-                   total_wins as "Wins", total_losses as "Losses", win_percentage as "Win %",
-                   tournaments_attended as "Tourneys"
-            FROM debater_career_stats WHERE total_wins >= 50
-            ORDER BY win_percentage DESC NULLS LAST LIMIT 50
-        """)
-
-    elif leaderboard_type == "Highest Win Percentage (100+ wins)":
-        results = run_query("""
-            SELECT debater_code as "Code", first_name as "First", last_name as "Last",
-                   total_wins as "Wins", total_losses as "Losses", win_percentage as "Win %",
-                   tournaments_attended as "Tourneys"
-            FROM debater_career_stats WHERE total_wins >= 100
-            ORDER BY win_percentage DESC NULLS LAST LIMIT 50
-        """)
-
-    elif leaderboard_type == "Best Average Speaker Points (50+ rounds)":
-        results = run_query("""
-            SELECT debater_code as "Code", first_name as "First", last_name as "Last",
-                   avg_speaker_points as "Avg Pts", prelim_rounds_with_points as "Rounds",
-                   total_wins as "Wins", win_percentage as "Win %"
-            FROM debater_career_stats WHERE prelim_rounds_with_points >= 50
-            ORDER BY avg_speaker_points DESC NULLS LAST LIMIT 50
-        """)
-
-    elif leaderboard_type == "Most Tournaments Attended":
-        results = run_query("""
-            SELECT debater_code as "Code", first_name as "First", last_name as "Last",
-                   tournaments_attended as "Tourneys", total_wins as "Wins",
-                   total_losses as "Losses", win_percentage as "Win %"
-            FROM debater_career_stats WHERE tournaments_attended > 0
-            ORDER BY tournaments_attended DESC LIMIT 50
-        """)
-
-    elif leaderboard_type == "Most Elim Wins":
-        results = run_query("""
-            SELECT debater_code as "Code", first_name as "First", last_name as "Last",
-                   elim_wins as "Elim W", elim_losses as "Elim L",
-                   total_wins as "Total W", win_percentage as "Win %"
-            FROM debater_career_stats WHERE elim_wins > 0
-            ORDER BY elim_wins DESC LIMIT 50
-        """)
-
-    display_table(results)
 
 
 # ============== TOURNAMENT LOOKUP ==============
