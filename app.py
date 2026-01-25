@@ -50,6 +50,11 @@ def run_query(query, params=None):
         conn.close()
 
 
+def display_table(df):
+    """Display a DataFrame as a table without the index column."""
+    st.markdown(df.to_html(index=False), unsafe_allow_html=True)
+
+
 @st.cache_data(ttl=300)
 def cached_query(query, params=None):
     """Cached version of run_query - results cached for 5 minutes."""
@@ -322,7 +327,7 @@ elif page == "Debater Lookup":
             display_df[col] = display_df[col].fillna('-')
 
         st.markdown(f"**Showing {len(display_df)} rounds**")
-        st.table(display_df.style.hide(axis='index'))
+        display_table(display_df)
 
 
 # ============== SEARCH TEAMS ==============
@@ -361,7 +366,7 @@ elif page == "Search Teams":
 
         if len(results) > 0:
             st.success(f"Found {len(results)} result(s)")
-            st.table(results.style.hide(axis='index'))
+            display_table(results)
         else:
             st.warning("No teams found matching that search.")
 
@@ -431,7 +436,7 @@ elif page == "Leaderboards":
             ORDER BY elim_wins DESC LIMIT 50
         """)
 
-    st.table(results.style.hide(axis='index'))
+    display_table(results)
 
 
 # ============== TOURNAMENT LOOKUP ==============
@@ -580,7 +585,7 @@ elif page == "Tournament Lookup":
                             """, (team_id, team_id, team_id, team_id, team_id, team_id, tournament_id))
 
                             if len(team_rounds) > 0:
-                                st.table(team_rounds.style.hide(axis='index'))
+                                display_table(team_rounds)
 
                         st.markdown("---")
 
@@ -646,7 +651,7 @@ elif page == "Tournament Lookup":
                 """, (tournament_id,))
 
                 if len(elim_results) > 0:
-                    st.table(elim_results.style.hide(axis='index'))
+                    display_table(elim_results)
                 else:
                     st.info("No elim results available.")
 
@@ -698,7 +703,7 @@ elif page == "Tournament Lookup":
                     """, (tournament_id, selected_round))
 
                     if len(round_results) > 0:
-                        st.table(round_results.style.hide(axis='index'))
+                        display_table(round_results)
                     else:
                         st.info("No results for this round.")
                 else:
@@ -751,7 +756,7 @@ elif page == "Tournament Lookup":
                         wins = len(team_rounds[team_rounds['Result'] == 'W'])
                         losses = len(team_rounds[team_rounds['Result'] == 'L'])
                         st.markdown(f"**Record: {wins}-{losses}**")
-                        st.table(team_rounds.style.hide(axis='index'))
+                        display_table(team_rounds)
                     else:
                         st.info("No results for this team.")
                 else:
