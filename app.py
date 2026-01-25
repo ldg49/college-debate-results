@@ -85,10 +85,10 @@ if page == "Home":
 
     stats = run_query("""
         SELECT
-            (SELECT COUNT(*) FROM tournament WHERE is_active = true) as tournaments,
-            (SELECT COUNT(DISTINCT debater_id) FROM debater WHERE is_active = true) as debaters,
-            (SELECT COUNT(*) FROM round_result WHERE is_active = true) as debates,
-            (SELECT COUNT(*) FROM team WHERE is_active = true) as teams
+            (SELECT COUNT(*) FROM tournament WHERE is_active IS NOT FALSE) as tournaments,
+            (SELECT COUNT(DISTINCT debater_id) FROM debater WHERE is_active IS NOT FALSE) as debaters,
+            (SELECT COUNT(*) FROM round_result WHERE is_active IS NOT FALSE) as debates,
+            (SELECT COUNT(*) FROM team WHERE is_active IS NOT FALSE) as teams
     """)
 
     col1.metric("Tournaments", f"{stats['tournaments'].iloc[0]:,}")
@@ -142,10 +142,10 @@ elif page == "Debater Lookup":
                 FROM debater d
                 JOIN team_debater td ON d.id = td.debater_id
                 JOIN team tm ON td.team_id = tm.id
-                JOIN round_result rr ON (rr.aff_team_id = tm.id OR rr.neg_team_id = tm.id) AND rr.is_active = true
-                JOIN round r ON rr.round_id = r.id AND r.is_active = true
+                JOIN round_result rr ON (rr.aff_team_id = tm.id OR rr.neg_team_id = tm.id) AND rr.is_active IS NOT FALSE
+                JOIN round r ON rr.round_id = r.id AND r.is_active IS NOT FALSE
                 JOIN tournament t ON r.tournament_id = t.id AND tm.tournament_id = t.id
-                WHERE d.debater_id = %s AND d.is_active = true
+                WHERE d.debater_id = %s AND d.is_active IS NOT FALSE
                 ORDER BY t.season DESC
             """, (code,))
 
@@ -157,7 +157,7 @@ elif page == "Debater Lookup":
                 JOIN team_debater td ON d.id = td.debater_id
                 JOIN team tm ON td.team_id = tm.id
                 JOIN tournament t ON tm.tournament_id = t.id
-                WHERE d.debater_id = %s AND d.is_active = true
+                WHERE d.debater_id = %s AND d.is_active IS NOT FALSE
                 ORDER BY t.start_date ASC
             """, (code,))
 
@@ -272,12 +272,12 @@ elif page == "Debater Lookup":
                 FROM debater d
                 JOIN team_debater td ON d.id = td.debater_id
                 JOIN team tm ON td.team_id = tm.id
-                JOIN round_result rr ON (rr.aff_team_id = tm.id OR rr.neg_team_id = tm.id) AND rr.is_active = true
-                JOIN round r ON rr.round_id = r.id AND r.is_active = true
+                JOIN round_result rr ON (rr.aff_team_id = tm.id OR rr.neg_team_id = tm.id) AND rr.is_active IS NOT FALSE
+                JOIN round r ON rr.round_id = r.id AND r.is_active IS NOT FALSE
                 JOIN tournament t ON r.tournament_id = t.id AND tm.tournament_id = t.id
                 LEFT JOIN team aff_tm ON rr.aff_team_id = aff_tm.id
                 LEFT JOIN team neg_tm ON rr.neg_team_id = neg_tm.id
-                WHERE d.debater_id = %s AND d.is_active = true
+                WHERE d.debater_id = %s AND d.is_active IS NOT FALSE
                 GROUP BY t.season, t.name, t.start_date, r.round_number, r.round_type, rr.aff_team_id, rr.neg_team_id,
                          tm.id, rr.id, rr.winner, aff_tm.team_name, neg_tm.team_name
                 ORDER BY t.start_date ASC,
@@ -445,7 +445,7 @@ elif page == "Tournament Lookup":
     with col2:
         seasons = run_query("""
             SELECT DISTINCT season FROM tournament
-            WHERE is_active = true AND season IS NOT NULL
+            WHERE is_active IS NOT FALSE AND season IS NOT NULL
             ORDER BY season DESC
         """)
         season_list = ["All Seasons"] + [s['season'] for s in seasons.to_dict('records')]
@@ -455,25 +455,25 @@ elif page == "Tournament Lookup":
     if search_term and selected_season != "All Seasons":
         tournaments = run_query("""
             SELECT id, name, season, start_date FROM tournament
-            WHERE is_active = true AND LOWER(name) LIKE LOWER(%s) AND season = %s
+            WHERE is_active IS NOT FALSE AND LOWER(name) LIKE LOWER(%s) AND season = %s
             ORDER BY start_date ASC NULLS LAST
         """, (f"%{search_term}%", selected_season))
     elif search_term:
         tournaments = run_query("""
             SELECT id, name, season, start_date FROM tournament
-            WHERE is_active = true AND LOWER(name) LIKE LOWER(%s)
+            WHERE is_active IS NOT FALSE AND LOWER(name) LIKE LOWER(%s)
             ORDER BY start_date ASC NULLS LAST
         """, (f"%{search_term}%",))
     elif selected_season != "All Seasons":
         tournaments = run_query("""
             SELECT id, name, season, start_date FROM tournament
-            WHERE is_active = true AND season = %s
+            WHERE is_active IS NOT FALSE AND season = %s
             ORDER BY start_date ASC NULLS LAST
         """, (selected_season,))
     else:
         tournaments = run_query("""
             SELECT id, name, season, start_date FROM tournament
-            WHERE is_active = true ORDER BY start_date DESC NULLS LAST LIMIT 100
+            WHERE is_active IS NOT FALSE ORDER BY start_date DESC NULLS LAST LIMIT 100
         """)
 
     if len(tournaments) > 0:
@@ -512,7 +512,7 @@ elif page == "Tournament Lookup":
                                 (rr2.neg_team_id = t.id AND rr2.winner = 1))
                            AND r2.round_type = 'prelim' AND rr2.is_active IS NOT FALSE) as "Record"
                     FROM team t
-                    WHERE t.tournament_id = %s AND t.is_active = true
+                    WHERE t.tournament_id = %s AND t.is_active IS NOT FALSE
                     ORDER BY (SELECT COUNT(*) FROM round_result rr2
                          JOIN round r2 ON rr2.round_id = r2.id
                          WHERE ((rr2.aff_team_id = t.id AND rr2.winner = 1) OR
@@ -735,7 +735,7 @@ elif page == "Tournament Lookup":
                 # Get teams at this tournament
                 teams = run_query("""
                     SELECT id, team_name FROM team
-                    WHERE tournament_id = %s AND is_active = true
+                    WHERE tournament_id = %s AND is_active IS NOT FALSE
                     ORDER BY team_name
                 """, (tournament_id,))
 
