@@ -630,20 +630,23 @@ elif page == "Tournament Lookup":
                             ELSE r.round_number
                         END as "Rd",
                         aff_tm.team_name as "Aff",
-                        neg_tm.team_name as "Neg",
+                        COALESCE(neg_tm.team_name, 'BYE') as "Neg",
                         (SELECT string_agg(
                              CASE WHEN rjv.vote != rr.winner THEN j.name || '*' ELSE j.name END,
                              ', ')
                          FROM round_judges_vote rjv JOIN judge j ON rjv.judge_id = j.id
                          WHERE rjv.round_result_id = rr.id) as "Judges",
-                        CASE WHEN rr.winner = 1 THEN 'AFF ' || COALESCE(rr.ballot_count, '')
+                        CASE WHEN rr.result_type = 'bye' THEN 'BYE'
+                             WHEN rr.result_type = 'closeout' THEN 'CLOSEOUT'
+                             WHEN rr.result_type = 'forfeit' THEN 'FORFEIT'
+                             WHEN rr.winner = 1 THEN 'AFF ' || COALESCE(rr.ballot_count, '')
                              WHEN rr.winner = 2 THEN 'NEG ' || COALESCE(rr.ballot_count, '')
-                             WHEN rr.winner = -1 THEN 'BYE'
+                             WHEN rr.winner = -1 THEN COALESCE(rr.ballot_count, '')
                         END as "Decision"
                     FROM round_result rr
                     JOIN round r ON rr.round_id = r.id
                     JOIN team aff_tm ON rr.aff_team_id = aff_tm.id
-                    JOIN team neg_tm ON rr.neg_team_id = neg_tm.id
+                    LEFT JOIN team neg_tm ON rr.neg_team_id = neg_tm.id
                     WHERE r.tournament_id = %s AND r.round_type = 'elim' AND rr.is_active IS NOT FALSE
                     ORDER BY CASE
                         WHEN LOWER(r.round_number) LIKE '%%runoff%%' THEN 1
