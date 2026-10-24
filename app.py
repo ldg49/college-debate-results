@@ -2,6 +2,7 @@
 Debate Database - Public Demo
 A Streamlit app for exploring college policy debate statistics.
 """
+import os
 
 import streamlit as st
 import pandas as pd
@@ -26,11 +27,10 @@ if hasattr(st, 'secrets') and 'database' in st.secrets:
 else:
     # Local development fallback
     DB_CONFIG = {
-        'host': '134.199.206.247',
-        'port': 5432,
+        'host': os.environ["DB_HOST"],
         'database': 'debating_db',
         'user': 'debating_user',
-        'password': 'lincoln_123'
+        'password': os.environ["DB_PASSWORD"]
     }
 
 
